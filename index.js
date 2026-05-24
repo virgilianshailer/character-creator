@@ -348,269 +348,6 @@ function buildFluxEmotionWorkflow(avatarB64, emotionPrompt, seed) {
     };
 }
 
-function buildIllustriousEmotionWorkflow(avatarB64, emotionPrompt, negPrompt, seed, modelName) {
-    modelName = modelName || 'illustrious_v10.safetensors';
-    return {
-        "1": {
-            "inputs": { "image": avatarB64, "upload": "image" },
-            "class_type": "LoadImageBase64"
-        },
-        "2": {
-            "inputs": { "upscale_method": "lanczos", "width": 768, "height": 768, "crop": "center", "image": ["1", 0] },
-            "class_type": "ImageScale"
-        },
-        "3": {
-            "inputs": { "ckpt_name": modelName },
-            "class_type": "CheckpointLoaderSimple"
-        },
-        "4": {
-            "inputs": { "text": emotionPrompt + ", masterpiece, best quality, detailed face, solo, simple white background, upper body portrait, looking at viewer", "clip": ["3", 1] },
-            "class_type": "CLIPTextEncode"
-        },
-        "5": {
-            "inputs": { "text": negPrompt || "lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, jpeg artifacts, blurry, multiple views, multiple people", "clip": ["3", 1] },
-            "class_type": "CLIPTextEncode"
-        },
-        "10": {
-            "inputs": { "ipadapter_file": "ip-adapter-plus_sdxl_vit-h.safetensors" },
-            "class_type": "IPAdapterModelLoader"
-        },
-        "11": {
-            "inputs": { "clip_name": "CLIP-ViT-H-14-laion2B-s32B-b79K.safetensors" },
-            "class_type": "CLIPVisionLoader"
-        },
-        "12": {
-            "inputs": {
-                "weight": 0.85, "weight_type": "style transfer",
-                "start_at": 0.0, "end_at": 1.0, "unfold_batch": false,
-                "model": ["3", 0], "ipadapter": ["10", 0],
-                "image": ["2", 0], "clip_vision": ["11", 0]
-            },
-            "class_type": "IPAdapterApply"
-        },
-        "20": {
-            "inputs": {
-                "control_net_name": "control_v11p_sd15_canny.pth",
-                "model": ["12", 0]
-            },
-            "class_type": "ControlNetLoader"
-        },
-        "21": {
-            "inputs": { "low_threshold": 80, "high_threshold": 200, "image": ["2", 0] },
-            "class_type": "Canny"
-        },
-        "22": {
-            "inputs": {
-                "strength": 0.6,
-                "start_percent": 0.0, "end_percent": 0.8,
-                "positive": ["4", 0], "negative": ["5", 0],
-                "control_net": ["20", 0], "image": ["21", 0]
-            },
-            "class_type": "ControlNetApplyAdvanced"
-        },
-        "6": {
-            "inputs": { "width": 768, "height": 768, "batch_size": 1 },
-            "class_type": "EmptyLatentImage"
-        },
-        "7": {
-            "inputs": {
-                "seed": seed, "steps": 25, "cfg": 7,
-                "sampler_name": "euler_ancestral", "scheduler": "normal",
-                "denoise": 1.0,
-                "model": ["12", 0],
-                "positive": ["22", 0], "negative": ["22", 1],
-                "latent_image": ["6", 0]
-            },
-            "class_type": "KSampler"
-        },
-        "8": {
-            "inputs": { "samples": ["7", 0], "vae": ["3", 2] },
-            "class_type": "VAEDecode"
-        },
-        "30": {
-            "inputs": { "images": ["8", 0] },
-            "class_type": "SwarmRemBg"
-        },
-        "9": {
-            "inputs": { "filename_prefix": "cc_emotion_temp", "images": ["30", 0] },
-            "class_type": "SaveImage"
-        }
-    };
-}
-
-function buildSD15EmotionWorkflow(avatarB64, emotionPrompt, negPrompt, seed, modelName) {
-    modelName = modelName || 'v1-5-pruned-emaonly.safetensors';
-    return {
-        "1": {
-            "inputs": { "image": avatarB64, "upload": "image" },
-            "class_type": "LoadImageBase64"
-        },
-        "2": {
-            "inputs": { "upscale_method": "lanczos", "width": 512, "height": 512, "crop": "center", "image": ["1", 0] },
-            "class_type": "ImageScale"
-        },
-        "3": {
-            "inputs": { "ckpt_name": modelName },
-            "class_type": "CheckpointLoaderSimple"
-        },
-        "4": {
-            "inputs": { "text": emotionPrompt + ", masterpiece, best quality, detailed face, solo, simple white background, upper body portrait, looking at viewer", "clip": ["3", 1] },
-            "class_type": "CLIPTextEncode"
-        },
-        "5": {
-            "inputs": { "text": negPrompt || "lowres, bad anatomy, bad hands, text, error, missing fingers, worst quality, low quality, blurry, multiple people", "clip": ["3", 1] },
-            "class_type": "CLIPTextEncode"
-        },
-        "10": {
-            "inputs": { "ipadapter_file": "ip-adapter-plus_sd15.safetensors" },
-            "class_type": "IPAdapterModelLoader"
-        },
-        "11": {
-            "inputs": { "clip_name": "CLIP-ViT-H-14-laion2B-s32B-b79K.safetensors" },
-            "class_type": "CLIPVisionLoader"
-        },
-        "12": {
-            "inputs": {
-                "weight": 0.85, "weight_type": "style transfer",
-                "start_at": 0.0, "end_at": 1.0, "unfold_batch": false,
-                "model": ["3", 0], "ipadapter": ["10", 0],
-                "image": ["2", 0], "clip_vision": ["11", 0]
-            },
-            "class_type": "IPAdapterApply"
-        },
-        "20": {
-            "inputs": { "control_net_name": "control_v11p_sd15_canny.pth" },
-            "class_type": "ControlNetLoader"
-        },
-        "21": {
-            "inputs": { "low_threshold": 80, "high_threshold": 200, "image": ["2", 0] },
-            "class_type": "Canny"
-        },
-        "22": {
-            "inputs": {
-                "strength": 0.6,
-                "start_percent": 0.0, "end_percent": 0.8,
-                "positive": ["4", 0], "negative": ["5", 0],
-                "control_net": ["20", 0], "image": ["21", 0]
-            },
-            "class_type": "ControlNetApplyAdvanced"
-        },
-        "6": {
-            "inputs": { "width": 512, "height": 512, "batch_size": 1 },
-            "class_type": "EmptyLatentImage"
-        },
-        "7": {
-            "inputs": {
-                "seed": seed, "steps": 25, "cfg": 7,
-                "sampler_name": "euler_ancestral", "scheduler": "normal",
-                "denoise": 1.0,
-                "model": ["12", 0],
-                "positive": ["22", 0], "negative": ["22", 1],
-                "latent_image": ["6", 0]
-            },
-            "class_type": "KSampler"
-        },
-        "8": {
-            "inputs": { "samples": ["7", 0], "vae": ["3", 2] },
-            "class_type": "VAEDecode"
-        },
-        "30": {
-            "inputs": { "images": ["8", 0] },
-            "class_type": "SwarmRemBg"
-        },
-        "9": {
-            "inputs": { "filename_prefix": "cc_emotion_temp", "images": ["30", 0] },
-            "class_type": "SaveImage"
-        }
-    };
-}
-
-function buildSDXLEmotionWorkflow(avatarB64, emotionPrompt, negPrompt, seed, modelName) {
-    modelName = modelName || 'sd_xl_base_1.0.safetensors';
-    return {
-        "1": {
-            "inputs": { "image": avatarB64, "upload": "image" },
-            "class_type": "LoadImageBase64"
-        },
-        "2": {
-            "inputs": { "upscale_method": "lanczos", "width": 1024, "height": 1024, "crop": "center", "image": ["1", 0] },
-            "class_type": "ImageScale"
-        },
-        "3": {
-            "inputs": { "ckpt_name": modelName },
-            "class_type": "CheckpointLoaderSimple"
-        },
-        "4": {
-            "inputs": { "text": emotionPrompt + ", masterpiece, best quality, detailed face, solo, simple white background, upper body portrait, looking at viewer", "clip": ["3", 1] },
-            "class_type": "CLIPTextEncode"
-        },
-        "5": {
-            "inputs": { "text": negPrompt || "lowres, bad anatomy, bad hands, text, error, worst quality, low quality, blurry, multiple people", "clip": ["3", 1] },
-            "class_type": "CLIPTextEncode"
-        },
-        "10": {
-            "inputs": { "ipadapter_file": "ip-adapter-plus_sdxl_vit-h.safetensors" },
-            "class_type": "IPAdapterModelLoader"
-        },
-        "11": {
-            "inputs": { "clip_name": "CLIP-ViT-H-14-laion2B-s32B-b79K.safetensors" },
-            "class_type": "CLIPVisionLoader"
-        },
-        "12": {
-            "inputs": {
-                "weight": 0.85, "weight_type": "style transfer",
-                "start_at": 0.0, "end_at": 1.0, "unfold_batch": false,
-                "model": ["3", 0], "ipadapter": ["10", 0],
-                "image": ["2", 0], "clip_vision": ["11", 0]
-            },
-            "class_type": "IPAdapterApply"
-        },
-        "20": {
-            "inputs": { "control_net_name": "diffusers_xl_canny_mid.safetensors" },
-            "class_type": "ControlNetLoader"
-        },
-        "21": {
-            "inputs": { "low_threshold": 80, "high_threshold": 200, "image": ["2", 0] },
-            "class_type": "Canny"
-        },
-        "22": {
-            "inputs": {
-                "strength": 0.55,
-                "start_percent": 0.0, "end_percent": 0.8,
-                "positive": ["4", 0], "negative": ["5", 0],
-                "control_net": ["20", 0], "image": ["21", 0]
-            },
-            "class_type": "ControlNetApplyAdvanced"
-        },
-        "6": {
-            "inputs": { "width": 1024, "height": 1024, "batch_size": 1 },
-            "class_type": "EmptyLatentImage"
-        },
-        "7": {
-            "inputs": {
-                "seed": seed, "steps": 25, "cfg": 7,
-                "sampler_name": "euler_ancestral", "scheduler": "normal",
-                "denoise": 1.0,
-                "model": ["12", 0],
-                "positive": ["22", 0], "negative": ["22", 1],
-                "latent_image": ["6", 0]
-            },
-            "class_type": "KSampler"
-        },
-        "8": {
-            "inputs": { "samples": ["7", 0], "vae": ["3", 2] },
-            "class_type": "VAEDecode"
-        },
-        "30": {
-            "inputs": { "images": ["8", 0] },
-            "class_type": "SwarmRemBg"
-        },
-        "9": {
-            "inputs": { "filename_prefix": "cc_emotion_temp", "images": ["30", 0] },
-            "class_type": "SaveImage"
-        }
-    };
-}
 /* ══════════════════════════════════════
    VOICE GENERATION — Workflow & Logic (v2.2)
    ══════════════════════════════════════ */
@@ -829,23 +566,9 @@ function writeString(view, offset, string) {
 }
 /* Build emotion workflow based on selected model */
 function buildEmotionWorkflow(avatarB64, emotionPrompt, seed) {
-    var modelType = (ccSettings && ccSettings.emotionsModel) || 'flux2klein';
-    var modelName = (ccSettings && ccSettings.emotionsModelName) || '';
-    var negPrompt = (ccSettings && ccSettings.emotionsNegPrompt) || '';
-
-    switch (modelType) {
-        case 'flux2klein':
-            return buildFluxEmotionWorkflow(avatarB64, emotionPrompt, seed);
-        case 'illustrious':
-        case 'noobai':
-            return buildIllustriousEmotionWorkflow(avatarB64, emotionPrompt, negPrompt, seed, modelName);
-        case 'sd15':
-            return buildSD15EmotionWorkflow(avatarB64, emotionPrompt, negPrompt, seed, modelName);
-        case 'sdxl':
-            return buildSDXLEmotionWorkflow(avatarB64, emotionPrompt, negPrompt, seed, modelName);
-        default:
-            return buildFluxEmotionWorkflow(avatarB64, emotionPrompt, seed);
-    }
+    // Only Flux 2 Klein remains as a built-in workflow; everything else
+    // is handled through user-supplied AutoIllustrator presets.
+    return buildFluxEmotionWorkflow(avatarB64, emotionPrompt, seed);
 }
 
 /* ══════════════════════════════════════
@@ -3904,10 +3627,6 @@ function buildSettingsPanel() {
     h += '<select id="cc-s-emo-model" class="text_pole" style="flex:1;font-size:.85em">';
     h += '<optgroup label="Built-in workflows">';
     h += '<option value="flux2klein">Flux 2 Klein (4B) — Best</option>';
-    h += '<option value="illustrious">Illustrious (SDXL) + IP-Adapter</option>';
-    h += '<option value="noobai">NoobAI (SDXL) + IP-Adapter</option>';
-    h += '<option value="sdxl">SDXL + IP-Adapter</option>';
-    h += '<option value="sd15">SD 1.5 + IP-Adapter</option>';
     h += '</optgroup>';
     h += '<optgroup label="AutoIllustrator presets" id="cc-emo-preset-group"></optgroup>';
     h += '</select>';
@@ -3915,8 +3634,7 @@ function buildSettingsPanel() {
     h += '</div></div>';
 
     h += '<small style="opacity:.45;display:block;margin:4px 0 6px 24px;font-size:10px">' +
-         'Built-in: Flux 2 Klein = native image edit (best consistency); ' +
-         'Illustrious/NoobAI/SDXL/SD 1.5 = IP-Adapter + ControlNet Canny. All use SwarmRemBg.<br>' +
+         'Built-in: Flux 2 Klein (4B) = native image edit, best identity consistency, uses SwarmRemBg for background removal.<br>' +
          'AutoIllustrator preset: uses your own workflow. It must support background removal ' +
          '(e.g. SwarmRemBg) and should use an Edit model (Flux Kontext/Klein, Qwen-Edit) ' +
          'or at least IP-Adapter mode — otherwise sprites will look inconsistent. ' +
