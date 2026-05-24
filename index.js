@@ -3450,9 +3450,9 @@ function renderLeftCol() {
         h += '</div>';
 
         if (ccData.refImageDesc) h += '<div style="font-size:9px;opacity:.3;margin-top:2px">' + esc(ccData.refImageDesc.substring(0, 80)) + '…</div>';
-		 h += '<label style="font-size:10px; opacity:.8; display:flex; align-items:center; gap:4px; margin-top:6px; margin-bottom:4px; cursor:pointer;" title="Send this image to ComfyUI for generation (%input_image%)">';
+		 h += '<label style="font-size:10px; opacity:.8; display:flex; align-items:center; gap:4px; margin-top:6px; margin-bottom:4px; cursor:pointer;" title="Feed this reference image into the ComfyUI workflow. Your workflow must contain one of these placeholders: %char_avatar%, %input_image% or %avatar_1% (base64), or %input_image_name% (uploaded filename). Best with Edit models / IP-Adapter. If unchecked, a blank image is sent instead.">';
         h += '<input type="checkbox" id="cc-use-ref-input" ' + (ccData.useRefAsCharAvatar ? 'checked' : '') + ' style="margin:0; cursor:pointer;">';
-        h += 'Use for Avatar Generation</label>';
+        h += 'Use reference for image generation</label>';
 
         h += '<div class="cc-left-btns" style="margin-top:4px">';
         var eyeTitle = ccData.refImageDesc ? 'Re-analyze image' : 'Analyze image (Caption API)';
