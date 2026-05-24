@@ -15,7 +15,7 @@ Character Creator turns a one-line idea (or a fully filled-out form) into a fini
 - **Image generation via ComfyUI** — produce a **Face (1:1)**, **Portrait (3:4)** and **Full Body (2:3)** image; pick which one becomes the card avatar
 - **🎭 Expression sprites** — generate a complete 28-emotion sprite sheet (admiration → surprise) for the Character Expressions extension, with a review grid to regenerate individual emotions and add variants before uploading
 - **🔌 AutoIllustrator integration** — image and sprite generation run through your saved AutoIllustrator workflow presets; no separate workflow to maintain
-- **Choice of emotion engine** — pick a built-in expression workflow (Flux 2 Klein, Illustrious, NoobAI, SDXL, SD 1.5) *or* drive sprites through any AutoIllustrator preset you've set up
+- **Choice of emotion engine** — use the built-in **Flux 2 Klein** expression workflow *or* drive sprites through any AutoIllustrator preset you've set up
 - **🔊 Voice sample** — generate a short spoken sample for the character through a Qwen3-TTS ComfyUI workflow, auto-converted to a clean 16-bit PCM WAV
 - **👕 Outfit system** — define multiple outfits (Everyday, Formal, …) with per-slot clothing, and choose which outfit drives the generated images
 - **🌍 Built-in translation** — translate the whole panel into your SillyTavern UI language on the fly
@@ -91,12 +91,8 @@ Found under **Extensions → Character Creator**.
 
 The expression-sprite dropdown is split into two groups:
 
-- **Built-in workflows** — ready-made sprite pipelines:
-  - **Flux 2 Klein (4B)** — native image edit, best identity consistency
-  - **Illustrious / NoobAI / SDXL** — IP-Adapter + ControlNet Canny
-  - **SD 1.5** — IP-Adapter (SD 1.5) + ControlNet Canny
-  - All built-ins use **SwarmRemBg** for background removal.
-- **AutoIllustrator presets** — your own saved workflows. The character avatar is fed into the preset's reference-image slot and the emotion is sent as the prompt. For consistent sprites the preset should:
+- **Built-in workflow** — **Flux 2 Klein (4B)**: a native image-edit pipeline that gives the best identity consistency across all 28 expressions. It feeds the avatar through a `ReferenceLatent` and removes the background with **SwarmRemBg**. Requires the Flux 2 Klein 4B model (`flux-2-klein-4b-fp8`), the Qwen3-4B text encoder (`qwen_3_4b`), the Flux 2 VAE, and the Swarm nodes (`SwarmKSampler`, `SwarmLoadImageB64`, `SwarmRemBg`) in your ComfyUI.
+- **AutoIllustrator presets** — your own saved workflows, for anything other than Flux 2 Klein (SDXL, Illustrious, Pony, etc.). The character avatar is fed into the preset's reference-image slot and the emotion is sent as the prompt. For consistent sprites the preset should:
   - support **background removal** (e.g. a `SwarmRemBg` node), and
   - use an **Edit model** (Flux Kontext / Klein, Qwen-Edit) or at least an **IP-Adapter** mode — otherwise each sprite drifts into a different-looking character.
 
