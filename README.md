@@ -92,7 +92,7 @@ Found under **Extensions → Character Creator**.
 The expression-sprite dropdown is split into two groups:
 
 - **Built-in workflows** — ready-made sprite pipelines:
-  - **Flux 2 Klein (9B/4B)** — native image edit, best identity consistency
+  - **Flux 2 Klein (4B)** — native image edit, best identity consistency
   - **Illustrious / NoobAI / SDXL** — IP-Adapter + ControlNet Canny
   - **SD 1.5** — IP-Adapter (SD 1.5) + ControlNet Canny
   - All built-ins use **SwarmRemBg** for background removal.
