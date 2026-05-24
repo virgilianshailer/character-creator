@@ -3889,11 +3889,14 @@ function buildSettingsPanel() {
     h += '<div class="cc-srow"><label class="checkbox_label"><input type="checkbox" id="cc-s-showface"><span>Generate Face (1:1)</span></label></div>';
     h += '<div class="cc-srow"><label class="checkbox_label"><input type="checkbox" id="cc-s-showportrait"><span>Generate Portrait (3:4)</span></label></div>';
     h += '<div class="cc-srow"><label class="checkbox_label"><input type="checkbox" id="cc-s-showfullbody"><span>Generate Full Body (2:3)</span></label></div>';
+    h += '</div>';
+
     h += '<hr>';
     h += '<div class="cc-srow"><label class="checkbox_label"><input type="checkbox" id="cc-s-nsfw"><span>Show NSFW parameters</span></label></div>';
     h += '<small style="opacity:.4;display:block;margin:0 0 6px 24px;font-size:11px"></small>';
 
     /* ═══ EMOTIONS GENERATION SETTINGS ═══ */
+    h += '<div id="cc-emo-options">';
     h += '<hr>';
     h += '<div style="margin-top:6px"><b style="font-size:12px;color:rgba(100,180,255,.7)">🎭 Emotions Generation</b></div>';
     h += '<div class="cc-srow cc-emo-model-row"><label><small>Emotions Model / Workflow</small></label>';
@@ -3918,7 +3921,6 @@ function buildSettingsPanel() {
          '(e.g. SwarmRemBg) and should use an Edit model (Flux Kontext/Klein, Qwen-Edit) ' +
          'or at least IP-Adapter mode — otherwise sprites will look inconsistent. ' +
          'The character avatar is fed into the preset\'s reference-image slot, the emotion is the prompt.</small>';
-
     h += '</div>';
 
     h += '<div class="cc-srow" id="cc-preset-row"><label><small><b>Image AI Preset</b></small></label>';
@@ -3934,10 +3936,10 @@ function buildSettingsPanel() {
     $('#cc-s-pos').val(ccSettings.panelPosition).on('change', function () { ccSettings.panelPosition = this.value; saveSett(); });
     $('#cc-s-genav').prop('checked', ccSettings.generateAvatar).on('change', function () {
         ccSettings.generateAvatar = this.checked; saveSett();
-        $('#cc-img-options, #cc-preset-row').toggle(this.checked);
+        $('#cc-img-options, #cc-emo-options, #cc-preset-row').toggle(this.checked);
         syncImageButtons();
     });
-    $('#cc-img-options, #cc-preset-row').toggle(!!ccSettings.generateAvatar);
+    $('#cc-img-options, #cc-emo-options, #cc-preset-row').toggle(!!ccSettings.generateAvatar);
 
     $('#cc-s-showface').prop('checked', ccSettings.showFace).on('change', function () { ccSettings.showFace = this.checked; saveSett(); syncImageButtons(); });
     $('#cc-s-showportrait').prop('checked', ccSettings.showPortrait).on('change', function () { ccSettings.showPortrait = this.checked; saveSett(); syncImageButtons(); });
