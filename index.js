@@ -3900,7 +3900,7 @@ function buildSettingsPanel() {
     h += '<div style="display:flex;gap:4px;align-items:center;flex:1">';
     h += '<select id="cc-s-emo-model" class="text_pole" style="flex:1;font-size:.85em">';
     h += '<optgroup label="Built-in workflows">';
-    h += '<option value="flux2klein">Flux 2 Klein (9B/4B) — Best</option>';
+    h += '<option value="flux2klein">Flux 2 Klein (4B) — Best</option>';
     h += '<option value="illustrious">Illustrious (SDXL) + IP-Adapter</option>';
     h += '<option value="noobai">NoobAI (SDXL) + IP-Adapter</option>';
     h += '<option value="sdxl">SDXL + IP-Adapter</option>';
