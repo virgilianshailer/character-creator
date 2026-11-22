@@ -15,10 +15,11 @@ Character Creator turns a one-line idea (or a fully filled-out form) into a fini
 - **Image generation via ComfyUI** — produce a **Face (1:1)**, **Portrait (3:4)** and **Full Body (2:3)** image; pick which one becomes the card avatar
 - **🎭 Expression sprites** — generate a complete 28-emotion sprite sheet (admiration → surprise) for the Character Expressions extension, with a review grid to regenerate individual emotions and add variants before uploading
 - **🔌 AutoIllustrator integration** — image and sprite generation run through your saved AutoIllustrator workflow presets; no separate workflow to maintain
-- **Choice of emotion engine** — use the built-in **Flux 2 Klein** expression workflow *or* drive sprites through any AutoIllustrator preset you've set up
+- **Choice of emotion engine** — pick a built-in expression workflow (Flux 2 Klein, Illustrious, NoobAI, SDXL, SD 1.5) *or* drive sprites through any AutoIllustrator preset you've set up
 - **🔊 Voice sample** — generate a short spoken sample for the character through a Qwen3-TTS ComfyUI workflow, auto-converted to a clean 16-bit PCM WAV
 - **👕 Outfit system** — define multiple outfits (Everyday, Formal, …) with per-slot clothing, and choose which outfit drives the generated images
-- **🌍 Built-in translation** — translate the whole panel into your SillyTavern UI language on the fly
+- **🌍 Built-in translation** — translate the whole panel into your SillyTavern UI language on the fly (Russian ships as a built-in dictionary and applies instantly, with no translation backend needed)
+- **💾 Autosave** — the field set is snapshotted to your browser as you work and restored after an accidental reload; *Reset* clears it (generated images are not kept)
 - **📄 Template loading** — paste a template to steer the card's structure and tone
 - **NSFW parameters** — an optional, off-by-default set of explicit body fields for adult cards
 - **Right-drawer or center-modal** UI, plus a chat-bar button to open the panel
@@ -68,6 +69,8 @@ git clone https://github.com/virgilianshailer/character-creator
 5. *(Optional)* Tick **Generate Emotions** to produce the 28 expression sprites, then review and confirm the upload.
 6. Click **Create** — the card is written to SillyTavern, ready to chat.
 
+To download the current card without adding or changing a library entry, open the caret beside **Create** and choose **Export card**, then press **Export**. The result is an importable PNG card. With **Portable card** enabled, player names are exported as `{{user}}` and mentions of the character's own name as `{{char}}`.
+
 ---
 
 ## Settings Reference
@@ -91,9 +94,14 @@ Found under **Extensions → Character Creator**.
 
 The expression-sprite dropdown is split into two groups:
 
-- **Built-in workflow** — **Flux 2 Klein (4B)**: a native image-edit pipeline that gives the best identity consistency across all 28 expressions. It feeds the avatar through a `ReferenceLatent` and removes the background with **SwarmRemBg**. Requires the Flux 2 Klein 4B model (`flux-2-klein-4b-fp8`), the Qwen3-4B text encoder (`qwen_3_4b`), the Flux 2 VAE, and the Swarm nodes (`SwarmKSampler`, `SwarmLoadImageB64`, `SwarmRemBg`) in your ComfyUI.
-- **AutoIllustrator presets** — your own saved workflows, for anything other than Flux 2 Klein (SDXL, Illustrious, Pony, etc.). The character avatar is fed into the preset's reference-image slot and the emotion is sent as the prompt. For consistent sprites the preset should:
-  - support **background removal** (e.g. a `SwarmRemBg` node), and
+- **Built-in workflows** — ready-made sprite pipelines:
+  - **Flux 2 Klein (9B/4B)** — native image edit, best identity consistency
+  - **Illustrious / NoobAI / SDXL** — IP-Adapter + ControlNet Canny
+  - **SD 1.5** — IP-Adapter (SD 1.5) + ControlNet Canny
+  - The built-in workflow generates a flat green or magenta chroma-key background and removes it with **SmartChromaKey**.
+  - **Built-in chroma-key color** inserts the selected value into both the Flux prompt and the matting node.
+- **AutoIllustrator presets** — your own saved workflows. The character avatar is fed into the preset's reference-image slot and the emotion is sent as the prompt. For consistent sprites the preset should:
+  - support **background removal** (e.g. a `SmartChromaKey` node), and
   - use an **Edit model** (Flux Kontext / Klein, Qwen-Edit) or at least an **IP-Adapter** mode — otherwise each sprite drifts into a different-looking character.
 
 Use the 🔄 button next to the dropdown to refresh the preset list after adding presets in AutoIllustrator.
@@ -174,11 +182,15 @@ Every generatable field carries a 🔒 toggle, and section headers have one too.
 
 **Sprites still have a background**
 
-- The built-in workflows include `SwarmRemBg`. If you use your own AutoIllustrator preset, add a background-removal node to it — Character Creator doesn't add one to external workflows.
+- The built-in workflow requires the `SmartChromaKey` custom node. If you use your own AutoIllustrator preset, add its background-removal stage yourself — Character Creator doesn't modify external workflows.
 
 **Emotion sprites didn't upload**
 
-- Confirm the character was created first and that the **Character Expressions** extension is installed. Uploads target the character's `expressions` folder via `/api/sprites/upload`.
+- Confirm the character was created first and that the **Character Expressions** extension is installed. Uploads target the character's `expressions` folder via `/api/sprites/upload`. Failures are now reported in the status bar with the sprite names — earlier versions reported success regardless.
+
+**A card made before v3.27 repeats itself in the prompt**
+
+- Up to v3.26 the personality, scenario and message examples were written into the description *and* into their own card fields, so the model received them twice. New cards keep each text in its own field only. To fix an existing card, open it in Character Creator and press **Create** again, or delete the duplicated `### Personality` / `### Scenario` / `### Message Examples` sections from its description.
 
 **Voice generation fails or returns nothing**
 
